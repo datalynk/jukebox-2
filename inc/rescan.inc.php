@@ -1,34 +1,32 @@
 <?php
 
-error_reporting(E_ALL);
-ini_set("display_startup_errors", 1);
-ini_set("display_errors", 1);
-
 require_once ("getid3/getid3.php");
 
 class mp3_scan
 {
-  var $error = false;
-
-  public function __construct($folder)
+  public function __construct($db)
   {
-    $this->folder = $folder;
+	$this->max_albums = 20;
+
     $this->id3 = new getID3;
+	$this->db = $db;
   }
 
-  public function get_new_albums()
-  {
-    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($this->folder), RecursiveIteratorIterator::SELF_FIRST);
-	$db_albums = array();
+  public function get_new_albums($folder)
+  { // add UnexpectedValueException handler for RDI
+	
+    $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($folder), RecursiveIteratorIterator::SELF_FIRST);
+	$db_albums = $this->db->get_album_paths();
     $albums = array();
+	$num_albums = 0;
 
-    while ($it->valid()) // loop thru subfolders
+    while ($it->valid() & $num_albums < $this->max_albums) // loop thru subfolders
       {
 		if ($it->hasChildren())
 		  {
 			$child_it = new RegexIterator($it->getChildren(), "/\.mp3$/", RegexIterator::MATCH); // get all .mp3 files in folder
 
-			if (iterator_count($child_it) > 0 && !in_array($it->getSubPathname(), $db_albums)) // if there are mp3s in folder and folder hsn't been add
+			if (iterator_count($child_it) > 0 && !in_array($it->getSubPathname(), $db_albums)) // if there are mp3s in folder and folder hsn't been added already
 			  {
 				$album = array("path" => $it->getSubPathname(),
 							   "duration" => 0,
@@ -51,6 +49,7 @@ class mp3_scan
 				usort($album["tracks"], "sort_by_tracknum");
 
 				$albums[] = $album;
+				$num_albums++;
 			  }
 		  }
 
@@ -58,31 +57,6 @@ class mp3_scan
 	  }
 
 	return $albums;
-  }
-
-  public function scan_album_folder($path)
-  {
-	$glob = new GlobIterator($this->folder . $path . "/*.mp3", FilesystemIterator::CURRENT_AS_PATHNAME);
-	$num_mp3s = $glob->count();
-	$mp3s = array();
-
-	if (!$num_mp3s)
-	  return false;
-
-	while ($glob->valid())
-	  {
-		$mp3 = $glob->current();
-		$mp3_info = $this->_get_full_id3($mp3);
-		
-		if ($mp3_info["error"])
-		  $this->_add_mp3_error($mp3, $mp3_info["error"]);
-		else
-		  $mp3s[] = $mp3_info;
-
-		$glob->next();
-	  }
-
-	return array($num_mp3s, $mp3s);
   }
 
   private function _get_full_id3($path)

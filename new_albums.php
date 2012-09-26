@@ -1,55 +1,69 @@
 <?php
 
 require_once("inc/config.inc.php");
+require_once("inc/juke_db.inc.php");
 
 if (isset($_POST["albums"]) && isset($_POST["songs"]))
   {
-	$dbh = new PDO("mysql:host=" . MYSQL_HOST . ";dbname=" . MYSQL_DB, MYSQL_USER, MYSQL_PASS);
+	$pdo = new jPDO;
 
 	$db_fields = array("artists" => array("artist"),
 					   "albums"  => array("artist_id", "path", "name", "size", "duration", "year"),
 					   "songs"   => array("album_id", "track_number", "title", "artist", "duration", "file_size", "file_name"));
 
-	$p_artists = $dbh->prepare("INSERT INTO `artists`(`" . implode("`,`", $db_fields["artists"]) . "`) VALUES(:" . 
-							   implode(",:", $db_fields["artists"]) . ")");
+	$p_artists = $pdo->prep_assoc("artists", $db_fields["artists"]);
+	$p_albums = $pdo->prep_assoc("albums", $db_fields["albums"]);
+	$p_songs = $pdo->prep_assoc("songs", $db_fields["songs"]);
 
-	$p_albums  = $dbh->prepare("INSERT INTO `albums`(`" . implode("`,`", $db_fields["albums"]) . "`) VALUES(:" . 
-							   implode(",:", $db_fields["albums"]) . ")");
+	$db_album_paths = $pdo->get_album_paths();
+	$db_alnum_artists = $pdo->get_alnum_artists();
+	$album_keys = array();
 
-	$p_songs  = $dbh->prepare("INSERT INTO `songs`(`" . implode("`,`", $db_fields["songs"]) . "`) VALUES(:" . 
-							   implode(",:", $db_fields["songs"]) . ")");
-
-	$artist_keys = $album_keys = array();
-
-	foreach ($_POST["artists"] as $a_key => $artist) // put artists in first
+	$pdo->beginTransaction();
+	
+	//_ loop through artists, adding them to db if necessary. if not, getting the db artist id's _//
+	foreach ($_POST["artists"] as $a_key => $artist)
 	  {
-		// check artists against db to see if it has already been added!
-		$p_artists->execute(array_to_pdo($artist));
-		
-		$artist_keys[$a_key] = $dbh->lastInsertId();
+		$alnum_artist = alnum($artist["artist"]); // remove non-alpha chars and compare to db non-alpha
+		$db_key = array_search($alnum_artist, $db_alnum_artists);
+
+		//_ if artist hasn't been added, add it to db and append db key to artists array _//
+		if ($db_key === FALSE)
+		  {
+			$p_artists->execute($artist);
+			$db_alnum_artists[$pdo->lastInsertId()] = $alnum_artist;
+		  }
+
+		$_POST["albums"][$a_key]["artist_id"] = ($db_key === FALSE) ? $pdo->lastInsertId() : $db_key;
 	  }
-		
-	foreach ($_POST["albums"] as $a_key => $album) // then albums
+
+	//_ now loop through all albums and add them to db and their tracks
+	foreach ($_POST["albums"] as $a_key => $album)
 	  {
-		$album["artist_id"] = $artist_keys[$a_key];
+		if (in_array($album["path"], $db_album_paths)) //- ignore preexisting albums
+		  break;
 
-		$p_albums->execute(array_to_pdo($album));
-		
-		$db_a_key = $dbh->lastInsertId();
+		$p_albums->execute($album); //- add album record to db
 
+		$album_id = $pdo->lastInsertId();
+
+		//_ loop over all the songs and add to db 
 		foreach ($_POST["songs"][$a_key] as $t_key => $song)
 		  {
-			print_r($song);
-			$song["album_id"] = $db_a_key;
-			
-			$p_songs->execute(array_to_pdo($song));
+			$song["album_id"] = $album_id;
+
+			$p_songs->execute($song);
 		  }
 	  }
 
+	print_r($db_alnum_artists);
 
-	$p_songs->debugDumpParams();
+	if (!$pdo->error)
+	  $pdo->commit();
 
-	print_r($p_songs->errorInfo());
+	//$p_songs->debugDumpParams();
+
+	//print_r($p_songs->errorInfo());
   }
 
 function array_to_pdo($array)

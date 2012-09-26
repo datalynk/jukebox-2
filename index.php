@@ -11,13 +11,18 @@
     <div id="content">
 <?php
 
-include "inc/config.inc.php";
-include "inc/rescan.inc.php";
+require_once("inc/config.inc.php");
+require_once("inc/rescan.inc.php");
+require_once("inc/juke_db.inc.php");
 
 echo "Scanning " . MP3_FOLDER . "...";
 
-$mp3_scan = new mp3_scan(MP3_FOLDER);
-$albums = $mp3_scan->get_new_albums();
+$jPDO = new jPDO();
+$mp3_scan = new mp3_scan($jPDO);
+
+$albums = $mp3_scan->get_new_albums(MP3_FOLDER);
+
+
 $num_albums = count($albums);
 
 echo "<h1>Found {$num_albums} albums</h1>";
