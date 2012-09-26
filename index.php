@@ -1,144 +1,112 @@
 <html>
 
   <head>
-    <title>album scan v1.0 biatch</title>
-    
-    <link rel="stylesheet" type="text/css" href="rescan.css" />
+    <title>juke3</title>
+    <link rel="stylesheet" type="text/css" href="css/home.css">
+    <script type="text/javascript" src="juke3.js"></script>
 
   </head>
-  
+
   <body>
-    <div id="content">
-<?php
+    <div id="wrapper">
+      <ul id="menu">
+	<li id="m_home"><span>home</span></li>
+	<li id="m_artists"><span>artists</span></li>
+	<li id="m_albums"><span>albums</span></li>
+      </ul>
 
-require_once("inc/config.inc.php");
-require_once("inc/rescan.inc.php");
-require_once("inc/juke_db.inc.php");
+      <div id="content">
+	<div id="artists">
+	  <div id="letters">
+	    <ul>
+	      <li>a</li>
+	      <li>b</li>
+	      <li>c</li>
+	      <li>d</li>
+	      <li>e</li>
+	      <li>f</li>
+	      <li>g</li>
+	      <li>h</li>
+	      <li>i</li>
+	      <li>j</li>
+	      <li>k</li>
+	      <li>l</li>
+	      <li>m</li>
+	      <li>n</li>
+	      <li>o</li>
+	      <li>p</li>
+	      <li>q</li>
+	      <li>r</li>
+	      <li>s</li>
+	      <li>t</li>
+	      <li>u</li>
+	      <li>v</li>
+	      <li>w</li>
+	      <li>x</li>
+	      <li>y</li>
+	      <li>z</li>
+	    </ul>
+	  </div>
+	  <div id="artist_list">
+	    <ul id="a1">
+	      <li class="letter a"><span>A Tribe Called Quest</span></li>
+	      <li><span>AC/DC</span></li>
+	      <li><span>Aerosmith</span></li>
+	      <li><span>Arctic Monkeys</span></li>
+	      <li><span>AZ</span></li>
+	      <li class="letter b"><span>B.B. King</span></li>
+	      <li><span>The Beatles</span></li>
+	      <li><span>Beck</span></li>
+	      <li><span>Blu & Exile</span></li>
+	      <li><span>Bob Dylan</span></li>
+	      <li><span>Boston</span></li>
+	    </ul>
+	    <ul id="a2">
+	      <li class="letter a"><span>A Tribe Called Quest</span></li>
+	      <li><span>AC/DC</span></li>
+	      <li><span>Aerosmith</span></li>
+	      <li><span>Arctic Monkeys</span></li>
+	      <li><span>AZ</span></li>
+	      <li class="letter b"><span>B.B. King</span></li>
+	      <li><span>The Beatles</span></li>
+	      <li><span>Beck</span></li>
+	      <li><span>Blu & Exile</span></li>
+	      <li><span>Bob Dylan</span></li>
+	      <li><span>Boston</span></li>
+	    </ul>
+	    <ul id="a3">
+	      <li class="letter a"><span>A Tribe Called Quest</span></li>
+	      <li><span>AC/DC</span></li>
+	      <li><span>Aerosmith</span></li>
+	      <li><span>Arctic Monkeys</span></li>
+	      <li><span>AZ</span></li>
+	      <li class="letter b"><span>B.B. King</span></li>
+	      <li><span>The Beatles</span></li>
+	      <li><span>Beck</span></li>
+	      <li><span>Blu & Exile</span></li>
+	      <li><span>Bob Dylan</span></li>
+	      <li><span>Boston</span></li>
+	    </ul>
+	    <ul id="a4">
+	      <li class="letter a"><span>A Tribe Called Quest</span></li>
+	      <li><span>AC/DC</span></li>
+	      <li><span>Aerosmith</span></li>
+	      <li><span>Arctic Monkeys</span></li>
+	      <li><span>AZ</span></li>
+	      <li class="letter b"><span>B.B. King</span></li>
+	      <li><span>The Beatles</span></li>
+	      <li><span>Beck</span></li>
+	      <li><span>Blu & Exile</span></li>
+	      <li><span>Bob Dylan</span></li>
+	      <li><span>Boston</span></li>
+	    </ul>
+	  </div>
+	</div>
+      </div>
+    </div>
 
-echo "Scanning " . MP3_FOLDER . "...";
-
-$jPDO = new jPDO();
-$mp3_scan = new mp3_scan($jPDO);
-
-$albums = $mp3_scan->get_new_albums(MP3_FOLDER);
-
-
-$num_albums = count($albums);
-
-echo "<h1>Found {$num_albums} albums</h1>";
-
-echo "<form action=\"new_albums.php\" method=\"POST\"><table>";
-
-foreach ($albums as $a_key => $album)
-  {
-	$album_info = array("artist" => array(),
-						"name"   => array(),
-						"year"   => array());
-
-	$t_html = "";
-
-	foreach ($album["tracks"] as $t_key => $track)
-	  {
-		$r_duration = readable_duration($track["duration"]);
-		$r_size = readable_size($track["file_size"]);
-
-		$t_html .= <<<THTML
-    <tr class="track">
-	  <td class="track_number">
-        <input type="hidden" name="songs[{$a_key}][{$t_key}][track_number]" value="{$track["track_number"]}" />
-        <span>{$track["track_number"]}</span>
-      </td>
-	  <td class="title">
-        <input type="hidden" name="songs[{$a_key}][{$t_key}][title]" value="{$track["title"]}" />
-        <span>{$track["title"]}</span>
-      </td>
-	  <td class="artist">
-        <input type="hidden" name="songs[{$a_key}][{$t_key}][artist]" value="{$track["artist"]}" />
-        <span>{$track["artist"]}</span>
-      </td>
-	  <td class="duration">
-        <input type="hidden" name="songs[{$a_key}][{$t_key}][duration]" value="{$track["duration"]}" />
-		<span>{$r_duration}</span>
-      </td>
-	  <td class="size">
-		<input type="hidden" name="songs[{$a_key}][{$t_key}][file_name]" value="{$track["file_name"]}" />
-        <input type="hidden" name="songs[{$a_key}][{$t_key}][file_size]" value="{$track["file_size"]}" />
-		<span>{$r_size}</span>
-      </td>
-	</tr>
-THTML;
-
-		foreach ($album_info as $field => $values)
-		  {
-			if (!in_array($track[$field], $album_info[$field]))
-			  $album_info[$field][] = $track[$field];
-		  }
-	  }
-	
-	$a_html = gen_album_html($a_key, $album_info);
-
-	echo "<tr class=\"artist\">
-            <td class=\"scan\">
-              <input type=\"checkbox\" name=\"albums[{$a_key}][path]\" value=\"{$album["path"]}\" checked/>
-            </td>
-            <td class=\"name\">
-              {$a_html["name"]}
-            </td>
-            <td class=\"artist\">
-              {$a_html["artist"]}
-            </td>
-            <td>
-              <input type=\"hidden\" name=\"albums[{$a_key}][size]\" value=\"{$album["size"]}\" />
-              <input type=\"hidden\" name=\"albums[{$a_key}][duration]\" value=\"{$album["duration"]}\" />
-            </td>
-            <td class=\"year\">
-              {$a_html["year"]}
-            </td>
-          </tr>" . $t_html;
-
-  }
-
-echo "<tr><td colspan=\"4\"><input type=\"submit\" value=\"submit\" /></td></tr>";
-echo "</table></form>";
-
-function gen_album_html($a_key, $album_info)
-{
-  foreach ($album_info as $field => $values)
-	{
-	  $key = ($field == "artist") ? "artists" : "albums";
-
-	  if (count($album_info[$field]) > 1) // make a selection box if there's conflicting album artist data in the tracks
-		{
-		  $a_html[$field] = "<select name=\"{$key}[{$a_key}][{$field}]\">";
-			
-		  foreach ($values as $value)
-			$a_html[$field] .= "<option>{$value}</option>";
-
-		  $a_html[$field] .= "<option>(other)</option></select>";
-		}
-	  else
-		{
-		  $a_html[$field] = "<input type=\"hidden\" name=\"{$key}[{$a_key}][{$field}]\" value=\"{$values[0]}\" /><span>{$values[0]}</span>";
-		}
-	}
-  
-  return $a_html;
-}
-
-function readable_duration($seconds)
-{
-  return (round($seconds/60) . ":" . sprintf("%02d", round($seconds%60)));
-}
-
-function readable_size($bytes, $decimals=2)
-{
-  $sz = 'BKMGTP';
-  $factor = floor((strlen($bytes) - 1) / 3);
-  return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor] . "iB";
-}
-
-//var_dump($new_albums["new"][0]);
-?>
+    <div id="album_overlay">
+      yo brah
     </div>
   </body>
 

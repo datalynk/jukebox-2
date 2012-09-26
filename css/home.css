@@ -1,0 +1,169 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: verdana, tahoma, sans-serif;
+    font-size: 10px;
+    background-color: #fdfdfd;
+}
+
+#wrapper {
+    margin: 0 auto;
+    width: 1024px;
+}
+
+/* menu */
+
+#menu {
+    list-style-type: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+#menu li {
+    float: left;
+    padding: 9px 16px;
+    text-align: center;
+    border-left: 1px solid #444;
+}
+
+#menu li:hover {
+    cursor: default;
+}
+
+#menu li>span {
+    
+}
+
+#m_home {
+    background-color: #ffa1a1;
+}
+
+#m_artists {
+    background-color: #9090ff;
+}
+
+#m_albums {
+    background-color: #8affa5;
+}
+
+#menu li:last-child {
+    border-right: 1px solid #444;
+}
+
+/* content */
+
+#content {
+    clear: both;
+    width: 100%;
+    border: 1px solid #444;
+}
+
+#content>div {
+    width: 100%;
+    height: 100%;
+}
+
+/* artist letters */
+
+#letters {
+    border-bottom: 1px solid #acacac;
+}
+
+#letters>ul {
+    padding: 0;
+    margin: 0 auto;
+    width: 100%;
+    text-align: center;
+    list-style-type: none;
+}
+
+#letters>ul:hover {
+    cursor: default;
+}
+
+#letters li {
+    font-size: 12px;
+    padding: 10px 0;
+    text-align: center;
+    width: 3.3%;
+    display: inline-block;
+}
+
+#letters li:hover {
+    background-color: #eee;
+    font-weight: bold;
+}
+
+/* artist list */
+
+#artist_list {
+    clear: both;
+}
+
+#artist_list>ul {
+    box-sizing: border-box;
+    list-style-type: none;
+    padding: 8px 0;
+    margin: 0;
+    float: left;
+    width: 25%;
+    border-left: 1px solid #acacac;
+}
+
+#artist_list>ul:first-child {
+    border: 0 !important;
+}
+
+#artist_list li {
+    position: relative;
+    padding: 3px 0;
+}
+
+#artist_list li:hover {
+    cursor: default;
+    background-color: #f7f7f7;
+    padding: 3px 0 3px 14px;
+}
+
+#artist_list li.letter {
+    background-color: #eee;
+}
+
+#artist_list li.letter:before {
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 18px;
+    position: absolute;
+    left: 9px;
+    top: 0;
+}
+
+#artist_list li.a:before {
+    content: "A";
+}
+
+#artist_list li.b:before {
+    content: "B";
+}
+
+#artist_list span {
+    padding-left: 30px;
+}
+
+/* album overlay */
+
+#album_overlay {
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-top: -250px;
+    margin-left: -400px;
+    width: 800px;
+    height: 500px;
+    padding: 14px;
+    background-color: rgba(255,255,255,0.8);
+    border: 1px solid #000;
+}
